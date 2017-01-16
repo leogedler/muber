@@ -5,6 +5,19 @@ module.exports = {
     greeting(req, res){
         res.send({ hi: 'there' });
     },
+    // Get drivers route
+    index(req, res, next){
+
+        // Big gotcha, these are not numbers, are strings, we need to parse it to numbers
+        const { lng, lat } = req.query;
+
+        Driver.geoNear(
+            { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] },
+            { spherical: true, maxDistance: 200000 }
+        )
+            .then((drivers)=>res.send(drivers))
+            .catch(next);
+    },
     // Create route
     create(req, res, next){
         const driverProps = req.body;
@@ -30,5 +43,6 @@ module.exports = {
             .catch(next);
 
     }
+
 
 }
