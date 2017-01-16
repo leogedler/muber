@@ -7,7 +7,7 @@ const Driver = mongoose.model('drivers');
 
 
 describe('Drivers controllers', ()=>{
-    it('Post to api/drivers create a new driver', (done)=>{
+    it('POST to api/drivers create a new driver', (done)=>{
         Driver.count().then(count => {
             request(app)
                 .post('/api/drivers')
@@ -18,6 +18,39 @@ describe('Drivers controllers', ()=>{
                         done();
                     });
                 });
+        })
+    })
+
+    it('PUT to api/drivers/id edits a existing driver', (done)=>{
+        const driver = new Driver({ email: 't@test.com', driving: false});
+
+        driver.save().then(() =>{
+            request(app)
+                .put(`/api/drivers/${driver._id}`)
+                .send({driving: true})
+                .end(()=>{
+                    Driver.findOne({email: 't@test.com'})
+                        .then(driver =>{
+                            assert(driver.driving === true);
+                            done();
+                        })
+                })
+        })
+    })
+
+    it('DELETE to api/drivers/id delete a existing driver', (done)=>{
+        const driver = new Driver({ email: 'test@test.com'});
+
+        driver.save().then(() =>{
+            request(app)
+                .delete(`/api/drivers/${driver._id}`)
+                .end(()=>{
+                    Driver.findOne({email: 'test@test.com'})
+                        .then(driver =>{
+                            assert(driver === null);
+                            done();
+                        })
+                })
         })
     })
 
